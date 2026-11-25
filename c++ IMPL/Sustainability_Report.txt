@@ -1,0 +1,16 @@
+SUSTAINABLE PRODUCT SELECTION REPORT
+====================================
+
+Product Name: Paper Bottle
+Category: Packaging
+Brand: EcoBrand
+Material: Recycled Paper
+
+Carbon Footprint: 15
+Energy Consumption: 20
+Water Usage: 25
+Waste Generation: 10
+Recyclability: 95%
+
+Sustainability Score: 85.50/100
+------------------------------------

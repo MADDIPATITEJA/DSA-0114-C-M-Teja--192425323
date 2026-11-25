@@ -1,0 +1,436 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sustainable Product Selection</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #f1f7f1;
+    color: #243b2c;
+}
+
+header {
+    background: #176b42;
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+nav {
+    background: #104e32;
+    padding: 15px;
+    text-align: center;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 12px;
+}
+
+.container {
+    width: 90%;
+    max-width: 1100px;
+    margin: auto;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    margin: 22px 0;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px #0002;
+}
+
+h2 { color: #176b42; }
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0 18px;
+    box-sizing: border-box;
+}
+
+button {
+    background: #198754;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover { background: #105c37; }
+
+img {
+    max-width: 180px;
+    max-height: 150px;
+    object-fit: contain;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+td, th {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background: #176b42;
+    color: white;
+}
+
+.result {
+    background: #e4f4e8;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 8px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🌱 Sustainable Product Selection</h1>
+<p>Environmental Impact Assessment System</p>
+</header>
+
+<nav>
+<a href="#module1">Module 1</a>
+<a href="#module2">Module 2</a>
+<a href="#module3">Module 3</a>
+</nav>
+
+<div class="container">
+
+<!-- MODULE 1 -->
+
+<section class="card" id="module1">
+
+<h2>Module 1: Product Image Acquisition</h2>
+
+<form id="productForm">
+
+<label>Product Name</label>
+<input id="name" required>
+
+<label>Category</label>
+<select id="category">
+<option>Packaging</option>
+<option>Electronics</option>
+<option>Clothing</option>
+<option>Household</option>
+</select>
+
+<label>Brand</label>
+<input id="brand" required>
+
+<label>Material</label>
+<input id="material" placeholder="Paper, Plastic, Glass..." required>
+
+<label>Upload Product Image</label>
+<input type="file" id="image" accept="image/*" required>
+
+<img id="preview" alt="Product preview" style="display:none">
+
+<br><br>
+<button type="submit">Upload Product</button>
+
+</form>
+
+<div id="uploadMessage"></div>
+
+</section>
+
+
+<!-- MODULE 2 -->
+
+<section class="card" id="module2">
+
+<h2>Module 2: Automatic Environmental Assessment</h2>
+
+<p>Environmental estimates are generated after product upload.</p>
+
+<div id="assessmentResult">
+Waiting for product upload...
+</div>
+
+</section>
+
+
+<!-- MODULE 3 -->
+
+<section class="card" id="module3">
+
+<h2>Module 3: Comparison of Two Products</h2>
+
+<label>Select First Product</label>
+<select id="product1"></select>
+
+<label>Select Second Product</label>
+<select id="product2"></select>
+
+<button onclick="compareProducts()">Compare Products</button>
+
+<div id="comparisonResult"></div>
+
+</section>
+
+</div>
+
+<script>
+
+let products = [];
+let selectedImageData = "";
+
+const imageInput = document.getElementById("image");
+
+imageInput.addEventListener("change", function(event) {
+
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+        alert("Please select an image file.");
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        selectedImageData = e.target.result;
+
+        const preview = document.getElementById("preview");
+        preview.src = selectedImageData;
+        preview.style.display = "block";
+    };
+
+    reader.readAsDataURL(file);
+});
+
+
+// MODULE 1: UPLOAD PRODUCT
+
+document.getElementById("productForm")
+.addEventListener("submit", function(e) {
+
+    e.preventDefault();
+
+    if (!selectedImageData) {
+        alert("Please upload product image.");
+        return;
+    }
+
+    const p = {
+
+        name: document.getElementById("name").value,
+        category: document.getElementById("category").value,
+        brand: document.getElementById("brand").value,
+        material: document.getElementById("material").value,
+        image: selectedImageData
+
+    };
+
+    // MODULE 2: AUTOMATIC ESTIMATION
+
+    const impact = calculateImpact(p.material);
+
+    Object.assign(p, impact);
+
+    p.score = calculateScore(p);
+
+    products.push(p);
+
+    showAssessment(p);
+    updateOptions();
+
+    document.getElementById("uploadMessage").innerText =
+        "Product uploaded successfully!";
+
+    this.reset();
+
+    selectedImageData = "";
+    document.getElementById("preview").style.display = "none";
+
+});
+
+
+// MODULE 2: MATERIAL-BASED ESTIMATION
+
+function calculateImpact(material) {
+
+    const data = {
+
+        "paper": [20,25,30,20,90],
+        "plastic": [75,70,60,85,25],
+        "glass": [45,65,35,30,80],
+        "metal": [65,75,40,35,85],
+        "cotton": [50,40,80,45,70],
+        "recycled paper": [15,20,25,15,95]
+
+    };
+
+    const key = material.toLowerCase().trim();
+
+    const v = data[key] || [50,50,50,50,50];
+
+    return {
+
+        carbon: v[0],
+        energy: v[1],
+        water: v[2],
+        waste: v[3],
+        recycle: v[4]
+
+    };
+
+}
+
+function calculateScore(p) {
+
+    return (100-p.carbon)*0.25 +
+           (100-p.energy)*0.20 +
+           (100-p.water)*0.15 +
+           (100-p.waste)*0.15 +
+           p.recycle*0.25;
+
+}
+
+function showAssessment(p) {
+
+    document.getElementById("assessmentResult")
+    .innerHTML = `
+
+    <div class="result">
+
+    <h3>${escapeHTML(p.name)}</h3>
+
+    <img src="${p.image}" alt="Product image">
+
+    <p>Carbon Footprint: ${p.carbon}%</p>
+    <p>Energy Consumption: ${p.energy}%</p>
+    <p>Water Usage: ${p.water}%</p>
+    <p>Waste Generation: ${p.waste}%</p>
+    <p>Recyclability: ${p.recycle}%</p>
+
+    <h2>Sustainability Score:
+    ${p.score.toFixed(2)}%</h2>
+
+    </div>
+
+    `;
+
+}
+
+
+// MODULE 3: SELECT TWO PRODUCTS
+
+function updateOptions() {
+
+    ["product1","product2"].forEach(id => {
+
+        const select = document.getElementById(id);
+
+        select.innerHTML =
+            '<option value="">Select Product</option>';
+
+        products.forEach((p,i) => {
+
+            select.innerHTML +=
+            `<option value="${i}">${escapeHTML(p.name)}</option>`;
+
+        });
+
+    });
+
+}
+
+
+// MODULE 3: COMPARISON
+
+function compareProducts() {
+
+    const a = document.getElementById("product1").value;
+    const b = document.getElementById("product2").value;
+
+    if(a === "" || b === "") {
+        alert("Please select two products!");
+        return;
+    }
+
+    if(a === b) {
+        alert("Select two different products!");
+        return;
+    }
+
+    const p1 = products[Number(a)];
+    const p2 = products[Number(b)];
+
+    const winner = p1.score > p2.score ? p1 :
+                   p2.score > p1.score ? p2 : null;
+
+    document.getElementById("comparisonResult")
+    .innerHTML = `
+
+    <div class="result">
+
+    <h3>Product Comparison Result</h3>
+
+    <table>
+
+    <tr>
+    <th>Factor</th>
+    <th>${escapeHTML(p1.name)}</th>
+    <th>${escapeHTML(p2.name)}</th>
+    </tr>
+
+    <tr><td>Carbon</td><td>${p1.carbon}%</td><td>${p2.carbon}%</td></tr>
+    <tr><td>Energy</td><td>${p1.energy}%</td><td>${p2.energy}%</td></tr>
+    <tr><td>Water</td><td>${p1.water}%</td><td>${p2.water}%</td></tr>
+    <tr><td>Waste</td><td>${p1.waste}%</td><td>${p2.waste}%</td></tr>
+    <tr><td>Recyclability</td><td>${p1.recycle}%</td><td>${p2.recycle}%</td></tr>
+    <tr><td>Sustainability</td>
+    <td>${p1.score.toFixed(2)}%</td>
+    <td>${p2.score.toFixed(2)}%</td></tr>
+
+    </table>
+
+    <h3>
+    ${winner ?
+    "Recommended Product: " + escapeHTML(winner.name) :
+    "Both products have equal sustainability scores."}
+    </h3>
+
+    </div>
+
+    `;
+
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    })[c]);
+}
+
+</script>
+
+</body>
+</html>
